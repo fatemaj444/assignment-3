@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment 2</title>
+    <!-- Include Pico CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1.5.8/css/pico.min.css"> 
+    <style>
+        /* Add a subtle background gradient */
+        body {
+            background: linear-gradient(to bottom right, #ffe5d9, #d8e2dc);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+    
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        } 
+
+        h1{
+            color:#9d8189;
+        }
+    
+        table {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+    
+        th {
+            background-color: #9d8189;
+            color: #ffffff;
+        }
+    
+        td {
+            color: #6c757d;
+        }
+    
+        /* Alternating row colors */
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+    
+        tr:hover {
+            background-color: #ffcad4;
+            color: #ffffff;
+        }
+    
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+    
+        /* Add a smooth hover effect for rows */
+        tr {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+    
+</head>
+<body>
+    <header>
+        <h1>Assignment 3</h1>
+    </header>
+    <main class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Semester</th>
+                    <th>Programs</th>
+                    <th>Nationality</th>
+                    <th>College</th>
+                    <th>No. of Students</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </main>
+    <footer>
+        <p>&copy; 2024 Assignment 3/p>
+    </footer>
+    <script>
+        const apiUrl = "https://data.gov.bh/api/explore/v2.1/catalog/datasets/01-statistics-of-students-nationalities_updated/records?limit=20";
+
+        // Function to escape HTML for preventing XSS
+        function escapeHTML(text) {
+            const element = document.createElement("div");
+            element.innerText = text;
+            return element.innerHTML;
+        }
+
+        // Fetch data from the API and populate the table
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.getElementById("table-body");
+                if (data.results && Array.isArray(data.results)) {
+                    data.results.forEach(record => {
+                        const row = document.createElement("tr");
+
+                        row.innerHTML = `
+                            <td>${escapeHTML(record.year || "N/A")}</td>
+                            <td>${escapeHTML(record.semester || "N/A")}</td>
+                            <td>${escapeHTML(record.the_programs || "N/A")}</td>
+                            <td>${escapeHTML(record.nationality || "N/A")}</td>
+                            <td>${escapeHTML(record.colleges || "N/A")}</td>
+                            <td>${escapeHTML(record.number_of_students || "N/A")}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement("tr");
+                    const noDataCell = document.createElement("td");
+                    noDataCell.colSpan = 6;
+                    noDataCell.textContent = "No data available";
+                    row.appendChild(noDataCell);
+                    tbody.appendChild(row);
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                const tbody = document.getElementById("table-body");
+                const row = document.createElement("tr");
+                const errorCell = document.createElement("td");
+                errorCell.colSpan = 6;
+                errorCell.textContent = "Failed to load data";
+                row.appendChild(errorCell);
+                tbody.appendChild(row);
+            });
+    </script>
+</body>
+</html>
